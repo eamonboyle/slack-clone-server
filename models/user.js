@@ -40,17 +40,13 @@ export default (sequelize, DataTypes) => {
             afterValidate: async (user) => {
                 const hashedPassword = await bcrypt.hash(user.password, 12);
                 user.password = hashedPassword;
-                // return {
-                //     ...user,
-                //     password: hashedPassword
-                // }
             }
         }
     });
 
     User.associate = (models) => {
         User.belongsToMany(models.Team, {
-            through: 'member',
+            through: models.Member,
             foreignKey: {
                 name: 'userId',
                 field: 'user_id',
