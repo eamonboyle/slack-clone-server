@@ -79,6 +79,21 @@ models.sequelize.sync({}).then(() => {
                 execute,
                 subscribe,
                 schema,
+                onConnect: async ({ token, refreshToken }, webSocket) => {
+                    if (token && refreshToken) {
+                        try {
+                            const { user } = jwt.verify(token, SECRET);
+                            return { models, user};
+                        } catch (err) {
+                            const newTokens = await refreshTokens(token, refreshToken, models, SECRET, SECRET2);
+                            return { models, user: newTokens.user}
+                        }
+
+                        return true;
+                    }
+
+                    return { models }
+                }
             },
             {
                 server,
